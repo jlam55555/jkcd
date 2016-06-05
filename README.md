@@ -8,11 +8,11 @@ Because the `*.class` files are compiled using my computer, the first method (ea
 
 1. *If you have an x86 architecture processor and Java 8:* To run the program, navigate to the `bin` directory and run the following: `java jkcd`.
 2. *For all other cases:* Navigate to the `src` directory and run the following to compile to the `bin` directory and run it:
-    ```
-    javac jkcd.java
-    cd ../bin
-    java jkcd
-    ```
+```
+javac jkcd.java
+cd ../bin
+java jkcd
+```
 
 ## Controls
 
