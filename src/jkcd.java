@@ -18,8 +18,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -27,6 +28,7 @@ public class jkcd extends Application {
   static BorderPane root = new BorderPane();
   static int imageId, lastId = -1, currentIndex = 0;
   static ArrayList<Integer> history = new ArrayList<Integer>();
+  static Stage stage;
   public static void main(String[] args) {
     launch(args);
   }
@@ -34,6 +36,7 @@ public class jkcd extends Application {
   public void start(Stage primaryStage) {
     // window title and root element
     primaryStage.setTitle("jkcd - the Java xkcd client");
+    stage = primaryStage;
 
     // buttons (and other control elements)! 
     Button nextButton = new Button(">>");
@@ -217,9 +220,19 @@ public class jkcd extends Application {
     urlTextTooltip.setPrefWidth(300);
     urlTextTooltip.setWrapText(true);
     Tooltip.install(comic, urlTextTooltip);
-    ScrollPane comicPane = new ScrollPane();
-    comicPane.setPrefSize(650, 400);
-    comicPane.setContent(comic);
+    Region comicPane;
+    double prefHeight = root.getHeight() - 100;
+    double prefWidth = root.getWidth() - 100;
+    if(comicImage.getWidth() > prefWidth || comicImage.getHeight() > prefHeight)
+      comicPane = new ScrollPane(comic);
+    else
+      comicPane = new StackPane(comic);
+    comicPane.setMinHeight(prefHeight);
+    comicPane.setPrefHeight(prefHeight);
+    comicPane.setMaxHeight(prefHeight);
+    comicPane.setMinWidth(prefWidth);
+    comicPane.setPrefWidth(prefWidth);
+    comicPane.setMaxWidth(prefWidth);
     root.setCenter(comicPane);
     Text titleText = new Text(id + ": " + title);
     StackPane top = new StackPane(titleText);
