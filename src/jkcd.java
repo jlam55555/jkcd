@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import static javafx.geometry.Pos.*;
@@ -29,6 +31,7 @@ public class jkcd extends Application {
   static int imageId, lastId = -1, currentIndex = 0;
   static ArrayList<Integer> history = new ArrayList<Integer>();
   static Stage stage;
+  static boolean regularSize = true;
   public static void main(String[] args) {
     launch(args);
   }
@@ -104,11 +107,13 @@ public class jkcd extends Application {
     VBox leftPane = new VBox(100, previousButton, firstButton, backButton);
     leftPane.setAlignment(CENTER);
     TextField inputId = new TextField();
-    inputId.setPrefWidth(150);
+    inputId.setPrefWidth(50);
     inputId.setPromptText("ID");
     inputId.setAlignment(CENTER);
-    Button getId = new Button("Get Comic");
-    getId.setPrefWidth(150);
+    Button getId = new Button(":#");
+    Tooltip getIdTooltip = new Tooltip("Goto comic with given ID");
+    Tooltip.install(getId, getIdTooltip);
+    getId.setPrefWidth(50);
     getId.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
@@ -124,8 +129,10 @@ public class jkcd extends Application {
     });
     HBox inputPane = new HBox(inputId, getId);
     inputPane.setAlignment(CENTER);
-    Button random = new Button("Random");
-    random.setPrefWidth(150);
+    Button random = new Button(":?");
+    Tooltip randomButtonTooltip = new Tooltip("Get random comic");
+    Tooltip.install(random, randomButtonTooltip);
+    random.setPrefWidth(50);
     random.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
@@ -133,7 +140,18 @@ public class jkcd extends Application {
         setImage(-1);
       }
     });
-    HBox bottomPane = new HBox(100, inputPane, random);
+    Button toggleSizeButton = new Button("<>");
+    toggleSizeButton.setPrefWidth(50);
+    Tooltip toggleSizeButtonTooltip = new Tooltip("Toggle regular-size/fit-to-size option for comic");
+    Tooltip.install(toggleSizeButton, toggleSizeButtonTooltip);
+    toggleSizeButton.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        regularSize = !regularSize;
+        setImage(imageId);
+      }
+    });
+    HBox bottomPane = new HBox(50, random, inputPane, toggleSizeButton);
     bottomPane.setAlignment(CENTER);
 
     // set up layout
@@ -149,7 +167,20 @@ public class jkcd extends Application {
     StackPane bottom = new StackPane(bottomPane);
     bottom.setPrefHeight(50);
     root.setBottom(bottom);
-    primaryStage.setScene(new Scene(root, 750, 500));
+    Scene scene = new Scene(root, 750, 500);
+    primaryStage.setScene(scene);
+    scene.widthProperty().addListener(new ChangeListener<Number>() {
+      @Override
+      public void changed(ObservableValue<? extends Number> ov, Number oldv, Number newv) {
+        setImage(imageId);
+      }
+    });
+    scene.heightProperty().addListener(new ChangeListener<Number>() {
+      @Override
+      public void changed(ObservableValue<? extends Number> ov, Number oldv, Number newv) {
+        setImage(imageId);
+      }
+    });
     primaryStage.show();
 
     // get current image
@@ -214,15 +245,15 @@ public class jkcd extends Application {
     }
 
     // show image
-    Image comicImage = new Image("http:" + src);
+    double prefHeight = root.getHeight() - 100;
+    double prefWidth = root.getWidth() - 100;
+    Image comicImage = (regularSize) ? new Image("http:" + src) : new Image("http:" + src, prefWidth, prefHeight, true, false);
     ImageView comic = new ImageView(comicImage);
     Tooltip urlTextTooltip = new Tooltip(caption);
     urlTextTooltip.setPrefWidth(300);
     urlTextTooltip.setWrapText(true);
     Tooltip.install(comic, urlTextTooltip);
     Region comicPane;
-    double prefHeight = root.getHeight() - 100;
-    double prefWidth = root.getWidth() - 100;
     if(comicImage.getWidth() > prefWidth || comicImage.getHeight() > prefHeight)
       comicPane = new ScrollPane(comic);
     else
