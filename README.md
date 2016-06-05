@@ -7,18 +7,13 @@ An xkcd viewer written in Java.
 An rewrite of my previous program in Bash, [xkcd-client](https://www.github.com/jlam55555/jkcd).
 
 ## Instructions
-### Java
+##### Terminal-based Java
 Because the `*.class` files are compiled using my computer, the first method (easier) may or may not work. If it doesn't, then you need the [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) to compile and run it.
 
 1. *If you have an x86 architecture processor and Java 8:* To run the program, navigate to the `bin` directory and run the following: `java jkcd`.
-2. *Otherwise, assuming you have the JDK installed:* Navigate to the `src` directory and run the following to compile to the `bin` directory and run it:
-```
-javac jkcd.java
-cd ../bin
-java jkcd
-```
+2. *Otherwise, assuming you have the JDK installed:* Navigate to the `src` directory and run the following to compile: `javac jkcd.java`. This will create the `.class` files in the `bin` directory. Follow step 1 to run the class file.
 
-### JAR
+##### JAR
 
 1. To run the executable JAR, navigate to the `dist` directory and run the following command: `java -jar dist/jkcd.jar`, or double-click on it in a file explorer.
 2. If this does not work, you may have to compile it yourself in order to get step 1 to work. Again, ensure you have the JDK8 installed, navigate to the `bin` directory, and then run the following: `jar cfe ../dist/jkcd.jar jkcd *`. This should create the JAR file in the `dist` directory. Follow step one.
