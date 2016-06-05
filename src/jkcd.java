@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import javafx.application.Application;
@@ -17,13 +18,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class jkcd extends Application {
   static BorderPane root = new BorderPane();
-  static int imageId, lastId = -1;
+  static int imageId, lastId = -1, currentIndex = 0;
+  static ArrayList<Integer> history = new ArrayList<Integer>();
   public static void main(String[] args) {
     launch(args);
   }
@@ -33,20 +36,70 @@ public class jkcd extends Application {
     primaryStage.setTitle("jkcd - the Java xkcd client");
 
     // buttons (and other control elements)! 
-    Button next = new Button(">|");
-    next.setOnAction(new EventHandler<ActionEvent>() {
+    Button nextButton = new Button(">>");
+    Tooltip nextButtonTooltip = new Tooltip("Next Comic");
+    Tooltip.install(nextButton, nextButtonTooltip);
+    nextButton.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
+        currentIndex++;
         setImage((imageId == lastId) ? 1 : imageId+1);
       }
     });
-    Button previous = new Button("|<");
-    previous.setOnAction(new EventHandler<ActionEvent>() {
+    Button lastButton = new Button(">|");
+    Tooltip lastButtonTooltip = new Tooltip("Last Comic");
+    Tooltip.install(lastButton, lastButtonTooltip);
+    lastButton.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
-        setImage(imageId-1);
+        currentIndex++;
+        setImage(lastId);
       }
     });
+    Button forwardButton = new Button("->"); 
+    Tooltip forwardButtonTooltip = new Tooltip("Forward");
+    Tooltip.install(forwardButton, forwardButtonTooltip);
+    forwardButton.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        if(history.size()-1 > currentIndex)
+          setImage(history.get(++currentIndex));
+      }
+    });
+    VBox rightPane = new VBox(100, nextButton, lastButton, forwardButton);
+    rightPane.setAlignment(CENTER);
+    Button previousButton = new Button("<<");
+    Tooltip previousButtonTooltip = new Tooltip("Previous Comic");
+    Tooltip.install(previousButton, previousButtonTooltip);
+    previousButton.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        currentIndex++;
+        setImage(imageId-1);
+      }
+    }); 
+    Button firstButton = new Button("|<");
+    Tooltip firstButtonTooltip = new Tooltip("First Comic");
+    Tooltip.install(firstButton, firstButtonTooltip);
+    firstButton.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        currentIndex++;
+        setImage(1);
+      }
+    });
+    Button backButton = new Button("<-");
+    Tooltip backButtonTooltip = new Tooltip("Back");
+    Tooltip.install(backButton, backButtonTooltip);
+    backButton.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        if(currentIndex != 0)
+          setImage(history.get(--currentIndex));
+      }
+    });
+    VBox leftPane = new VBox(100, previousButton, firstButton, backButton);
+    leftPane.setAlignment(CENTER);
     TextField inputId = new TextField();
     inputId.setPrefWidth(150);
     inputId.setPromptText("ID");
@@ -58,12 +111,12 @@ public class jkcd extends Application {
       public void handle(ActionEvent event) {
         try {
           int id = Integer.parseInt(inputId.getText());
-          if(id <= -1)
+          if(id <= -1 || id > lastId)
             throw new Exception();
+          currentIndex++;
           setImage(id);
-        } catch(Exception e) {
-          inputId.setText("");
-        }
+        } catch(Exception e) {}
+        inputId.setText("");
       }
     });
     HBox inputPane = new HBox(inputId, getId);
@@ -73,20 +126,21 @@ public class jkcd extends Application {
     random.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
+        currentIndex++;
         setImage(-1);
       }
     });
-    HBox bottomPane = new HBox(150, inputPane, random);
+    HBox bottomPane = new HBox(100, inputPane, random);
     bottomPane.setAlignment(CENTER);
 
     // set up layout
     StackPane top = new StackPane();
     top.setPrefHeight(50);
     root.setTop(top);
-    StackPane left = new StackPane(previous);
+    StackPane left = new StackPane(leftPane);
     left.setPrefWidth(50);
     root.setLeft(left);
-    StackPane right = new StackPane(next);
+    StackPane right = new StackPane(rightPane);
     right.setPrefWidth(50);
     root.setRight(right);
     StackPane bottom = new StackPane(bottomPane);
@@ -129,8 +183,17 @@ public class jkcd extends Application {
       Matcher idMatcher = idPattern.matcher(html);
       idMatcher.find();
       id = Integer.parseInt(idMatcher.group(1));
-      if(lastId == -1)
+      if(lastId == -1) {
         lastId = id;
+        history.add(id);
+      }
+    }
+    if(currentIndex == history.size()) {
+      history.add(id);
+    } else if(history.get(currentIndex) != id) {
+      for(int i = history.size()-1; i >= currentIndex; i--)
+        history.remove(i);
+      history.add(id);
     }
     imageId = id;
     Pattern largePattern = Pattern.compile("<div id=\"comic\"><a href=\"([^\"]+(\\.png|large/))\">");
