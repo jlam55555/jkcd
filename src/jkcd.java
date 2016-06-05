@@ -256,9 +256,31 @@ public class jkcd extends Application {
     urlTextTooltip.setWrapText(true);
     Tooltip.install(comic, urlTextTooltip);
     Region comicPane;
-    if(comicImage.getWidth() > prefWidth || comicImage.getHeight() > prefHeight)
-      comicPane = new ScrollPane(comic);
-    else
+    double imgHeight = comicImage.getHeight();
+    double imgWidth = comicImage.getWidth();
+    if(imgWidth > prefWidth || imgHeight > prefHeight) {
+      if(imgWidth > prefWidth && imgHeight > prefHeight) {
+        comicPane = new ScrollPane(comic);
+      } else if(imgWidth > prefWidth) {
+        ScrollPane innerPane = new ScrollPane(comic);
+        innerPane.setMinWidth(prefWidth);
+        innerPane.setPrefWidth(prefWidth);
+        innerPane.setMaxWidth(prefWidth);
+        innerPane.setMinHeight(imgHeight+2);
+        innerPane.setPrefHeight(imgHeight+2);
+        innerPane.setMaxHeight(imgHeight+2);
+        comicPane = new StackPane(innerPane);
+      } else {
+        ScrollPane innerPane = new ScrollPane(comic);
+        innerPane.setMinWidth(imgWidth+2);
+        innerPane.setPrefWidth(imgWidth+2);
+        innerPane.setMaxWidth(imgWidth+2);
+        innerPane.setMinHeight(prefHeight);
+        innerPane.setPrefHeight(prefHeight);
+        innerPane.setMaxHeight(prefHeight);
+        comicPane = new StackPane(innerPane);
+      }
+    } else
       comicPane = new StackPane(comic);
     comicPane.setMinHeight(prefHeight);
     comicPane.setPrefHeight(prefHeight);

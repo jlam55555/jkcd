@@ -3,6 +3,8 @@
 }
 .scroll-pane {
   -fx-pannable: true;
+  -fx-hbar-policy: never;
+  -fx-vbar-policy: never;
 }
 .button {
   -fx-background-color: #6E7B91;
