@@ -132,7 +132,7 @@ public class jkcd extends Application {
     Button random = new Button(":?");
     Tooltip randomButtonTooltip = new Tooltip("Get random comic");
     Tooltip.install(random, randomButtonTooltip);
-    random.setPrefWidth(50);
+    random.setPrefWidth(75);
     random.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
@@ -141,7 +141,7 @@ public class jkcd extends Application {
       }
     });
     Button toggleSizeButton = new Button("<>");
-    toggleSizeButton.setPrefWidth(50);
+    toggleSizeButton.setPrefWidth(75);
     Tooltip toggleSizeButtonTooltip = new Tooltip("Toggle regular-size/fit-to-size option for comic");
     Tooltip.install(toggleSizeButton, toggleSizeButtonTooltip);
     toggleSizeButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -159,10 +159,10 @@ public class jkcd extends Application {
     top.setPrefHeight(50);
     root.setTop(top);
     StackPane left = new StackPane(leftPane);
-    left.setPrefWidth(50);
+    left.setPrefWidth(75);
     root.setLeft(left);
     StackPane right = new StackPane(rightPane);
-    right.setPrefWidth(50);
+    right.setPrefWidth(75);
     root.setRight(right);
     StackPane bottom = new StackPane(bottomPane);
     bottom.setPrefHeight(50);
@@ -181,6 +181,8 @@ public class jkcd extends Application {
         setImage(imageId);
       }
     });
+    scene.getStylesheets().clear();
+    scene.getStylesheets().add("style.css");
     primaryStage.show();
 
     // get current image
@@ -246,7 +248,7 @@ public class jkcd extends Application {
 
     // show image
     double prefHeight = root.getHeight() - 100;
-    double prefWidth = root.getWidth() - 100;
+    double prefWidth = root.getWidth() - 150;
     Image comicImage = (regularSize) ? new Image("http:" + src) : new Image("http:" + src, prefWidth, prefHeight, true, false);
     ImageView comic = new ImageView(comicImage);
     Tooltip urlTextTooltip = new Tooltip(caption);
