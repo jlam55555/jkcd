@@ -7,20 +7,23 @@ import java.util.regex.Matcher;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import static javafx.geometry.Pos.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class jkcd extends Application {
   static BorderPane root = new BorderPane();
-  static int imageId;
+  static int imageId, lastId = -1;
   public static void main(String[] args) {
     launch(args);
   }
@@ -29,19 +32,12 @@ public class jkcd extends Application {
     // window title and root element
     primaryStage.setTitle("jkcd - the Java xkcd client");
 
-    // buttons!
-    Button random = new Button("Random");
-    random.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent event) {
-        setImage(-1);
-      }
-    });
+    // buttons (and other control elements)! 
     Button next = new Button(">|");
     next.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
-        setImage(imageId+1);
+        setImage((imageId == lastId) ? 1 : imageId+1);
       }
     });
     Button previous = new Button("|<");
@@ -51,6 +47,37 @@ public class jkcd extends Application {
         setImage(imageId-1);
       }
     });
+    TextField inputId = new TextField();
+    inputId.setPrefWidth(150);
+    inputId.setPromptText("ID");
+    inputId.setAlignment(CENTER);
+    Button getId = new Button("Get Comic");
+    getId.setPrefWidth(150);
+    getId.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        try {
+          int id = Integer.parseInt(inputId.getText());
+          if(id <= -1)
+            throw new Exception();
+          setImage(id);
+        } catch(Exception e) {
+          inputId.setText("");
+        }
+      }
+    });
+    HBox inputPane = new HBox(inputId, getId);
+    inputPane.setAlignment(CENTER);
+    Button random = new Button("Random");
+    random.setPrefWidth(150);
+    random.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        setImage(-1);
+      }
+    });
+    HBox bottomPane = new HBox(150, inputPane, random);
+    bottomPane.setAlignment(CENTER);
 
     // set up layout
     StackPane top = new StackPane();
@@ -62,14 +89,14 @@ public class jkcd extends Application {
     StackPane right = new StackPane(next);
     right.setPrefWidth(50);
     root.setRight(right);
-    StackPane bottom = new StackPane(random);
+    StackPane bottom = new StackPane(bottomPane);
     bottom.setPrefHeight(50);
     root.setBottom(bottom);
     primaryStage.setScene(new Scene(root, 750, 500));
     primaryStage.show();
 
-    // get random image
-    setImage(-1);
+    // get current image
+    setImage(0);
 
   }
   public static String getHtml(String toDownload) {
@@ -90,18 +117,20 @@ public class jkcd extends Application {
     return html;
   }
   public static void setImage(int id) {
-    String html = getHtml((id == -1) ? "http://c.xkcd.com/random/comic/" : "http://www.xkcd.com/" + id);
+    String html = getHtml((id == -1) ? "http://c.xkcd.com/random/comic/" : (id == 0) ? "http://www.xkcd.com/" : "http://www.xkcd.com/" + id);
     Pattern titlePattern = Pattern.compile("<img src=\"([^\"]+)\" title=\"([^\"]+)\" alt=\"([^\"]+?)\" />");
     Matcher titleMatcher = titlePattern.matcher(html);
     titleMatcher.find();
     String src = titleMatcher.group(1);
     String caption = titleMatcher.group(2);
     String title = titleMatcher.group(3);
-    if(id == -1) {
+    if(id <= 0) {
       Pattern idPattern = Pattern.compile("Permanent link to this comic: http://xkcd.com/([0-9]+)/");
       Matcher idMatcher = idPattern.matcher(html);
       idMatcher.find();
       id = Integer.parseInt(idMatcher.group(1));
+      if(lastId == -1)
+        lastId = id;
     }
     imageId = id;
     Pattern largePattern = Pattern.compile("<div id=\"comic\"><a href=\"([^\"]+(\\.png|large/))\">");
@@ -122,6 +151,8 @@ public class jkcd extends Application {
     Image comicImage = new Image("http:" + src);
     ImageView comic = new ImageView(comicImage);
     Tooltip urlTextTooltip = new Tooltip(caption);
+    urlTextTooltip.setPrefWidth(300);
+    urlTextTooltip.setWrapText(true);
     Tooltip.install(comic, urlTextTooltip);
     ScrollPane comicPane = new ScrollPane();
     comicPane.setPrefSize(650, 400);
