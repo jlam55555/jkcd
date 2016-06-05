@@ -1,7 +1,7 @@
 # jkcd
 An xkcd viewer written in Java.
 
-![jkcd program in action](http://imgur.com/bzs3KrYl.png)
+![jkcd program in action](http://imgur.com/4FRZ97vl.png)
 
 ## Inspiration
 An rewrite of my previous program in Bash, [xkcd-client](https://www.github.com/jlam55555/jkcd).
