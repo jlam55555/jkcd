@@ -42,7 +42,7 @@ To run the program, navigate to the `bin` directory and run the following: `java
     </tr>
     <tr>
       <td>:?</td>
-      <td>Get random comic (goto comic from `c.xkcd.com/random/comic`)</td>
+      <td>Get random comic (goto comic from <code>c.xkcd.com/random/comic</code>)</td>
     </tr>
     <tr>
       <td>&lt;&gt;</td>
@@ -56,4 +56,5 @@ To run the program, navigate to the `bin` directory and run the following: `java
 </table>
 
 \* If there is one
+
 \*\* If reached the end, then loops around
