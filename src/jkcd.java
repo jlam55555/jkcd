@@ -25,6 +25,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.unbescape.html.HtmlEscape;
 
 public class jkcd extends Application {
   static BorderPane root = new BorderPane();
@@ -212,7 +213,7 @@ public class jkcd extends Application {
     Matcher titleMatcher = titlePattern.matcher(html);
     titleMatcher.find();
     String src = titleMatcher.group(1);
-    String caption = titleMatcher.group(2);
+    String caption = HtmlEscape.unescapeHtml(titleMatcher.group(2));
     String title = titleMatcher.group(3);
     if(id <= 0) {
       Pattern idPattern = Pattern.compile("Permanent link to this comic: http://xkcd.com/([0-9]+)/");
