@@ -137,7 +137,7 @@ public class jkcd extends Application {
       @Override
       public void handle(ActionEvent event) {
         currentIndex++;
-        setImage(-1);
+        setImage((int) Math.floor(Math.random() * (lastId + 1)));
       }
     });
     Button toggleSizeButton = new Button("<>");
@@ -207,49 +207,53 @@ public class jkcd extends Application {
     return html;
   }
   public static void setImage(int id) {
-    String html = getHtml((id == -1) ? "http://c.xkcd.com/random/comic/" : (id == 0) ? "http://www.xkcd.com/" : "http://www.xkcd.com/" + id);
-    Pattern titlePattern = Pattern.compile("<img src=\"([^\"]+)\" title=\"([^\"]+)\" alt=\"([^\"]+?)\" />");
-    Matcher titleMatcher = titlePattern.matcher(html);
-    titleMatcher.find();
-    String src = titleMatcher.group(1);
-    String caption = titleMatcher.group(2).replaceAll("&#39;", "'");
-    String title = titleMatcher.group(3);
-    if(id <= 0) {
-      Pattern idPattern = Pattern.compile("Permanent link to this comic: http://xkcd.com/([0-9]+)/");
-      Matcher idMatcher = idPattern.matcher(html);
-      idMatcher.find();
-      id = Integer.parseInt(idMatcher.group(1));
-      if(lastId == -1) {
-        lastId = id;
-        history.add(id);
-      }
-    }
-    if(currentIndex == history.size()) {
+    String html = getHtml((id == 0) ? "http://www.xkcd.com/info.0.json" : "http://www.xkcd.com/" + id + "/info.0.json");
+    Pattern infoPattern = Pattern.compile(
+      "\"num\": ([0-9]+).+" + 
+      "\"link\": \"([^\"]*)\".+" + 
+      "\"safe_title\": \"([^\"]+)\".+" + 
+      "\"alt\": \"([^\"]+)\".+" + 
+      "\"img\": \"([^\"]+)\""
+    );
+    Matcher infoMatcher = infoPattern.matcher(html);
+    infoMatcher.find();
+    String link = infoMatcher.group(2).replaceAll("\\\\/", "/");
+    String title = infoMatcher.group(3);
+    String caption = infoMatcher.group(4).replaceAll("&#39;", "'");
+    String src = infoMatcher.group(5).replaceAll("\\\\/", "/");
+    try {
+      id = Integer.parseInt(infoMatcher.group(1));
+    } catch(NumberFormatException e) {}
+    if(lastId == -1) {
+      lastId = id;
       history.add(id);
-    } else if(history.get(currentIndex) != id) {
+    }
+    imageId = id;
+    if(currentIndex == history.size())
+      history.add(id);
+    else if(history.get(currentIndex) != id) {
       for(int i = history.size()-1; i >= currentIndex; i--)
         history.remove(i);
       history.add(id);
     }
-    imageId = id;
-    Pattern largePattern = Pattern.compile("<div id=\"comic\"><a href=\"([^\"]+(\\.png|large/))\">");
-    Matcher largeMatcher = largePattern.matcher(html);
+    Pattern largePattern = Pattern.compile("(\\.png|large/)$");
+    Matcher largeMatcher = largePattern.matcher(link);
     if(largeMatcher.find()) {
-      if(largeMatcher.group(1).substring(largeMatcher.group(1).length()-4, largeMatcher.group(1).length()).equals(".png")) {
-        src = largeMatcher.group(1).substring(5);
+      if(link.substring(link.length()-4, link.length()).equals(".png")) {
+        src = largeMatcher.group();
       } else {
-        String imageHtml = getHtml(largeMatcher.group(1));
+        String imageHtml = getHtml(link);
         Pattern imagePattern = Pattern.compile("<img[^>]+src=\"([^\"]+)\"");
         Matcher imageMatcher = imagePattern.matcher(imageHtml);
         imageMatcher.find();
-        src = imageMatcher.group(1).substring(5);
+        src = imageMatcher.group(1);
       }
     }
 
     // show image
     double prefHeight = root.getHeight() - 100;
     double prefWidth = root.getWidth() - 150;
-    Image comicImage = (regularSize) ? new Image("http:" + src) : new Image("http:" + src, prefWidth, prefHeight, true, false);
+    Image comicImage = (regularSize) ? new Image(src) : new Image(src, prefWidth, prefHeight, true, false);
     ImageView comic = new ImageView(comicImage);
     Tooltip urlTextTooltip = new Tooltip(caption);
     urlTextTooltip.setPrefWidth(300);
