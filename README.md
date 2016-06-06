@@ -17,6 +17,8 @@ Both steps require that you have either the JDK8 or JVM8 (Java 8).
 2. **Compiling the program yourself (requires JDK8)** (use if you want more control or if step 1 does not work):
     a. Navigate to the `bin` folder, and run the following commands: `javac ../src/jkcd.java -d ./ -cp .unbescape.jar:.;jar cfm ../dist/jkcd/jkcd.jar manifest.txt *.class style.css`. Then, follow step 1 to run the executable-jar file.
 
+**Note**: When moving around the program, you also have to move the `.unbescape.jar` dependency with it. For your convenience, the above commands build the program within the `dist/jkcd` directory, which can all be moved at once to ensure the dependency is not lost. In other words, **do not move the jkcd.jar file**; move its containing `jkcd` directory instead. Sorry for the inconvience; unfortunately, simplifying this process is [not possible](http://stackoverflow.com/a/12357552) using normal Java.
+
 ## Controls
 
 <table>
