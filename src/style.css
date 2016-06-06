@@ -1,0 +1,26 @@
+* {
+  -fx-background-color: #FFFFFF;
+}
+.scroll-pane {
+  -fx-pannable: true;
+  -fx-hbar-policy: never;
+  -fx-vbar-policy: never;
+}
+.button {
+  -fx-background-color: #6E7B91;
+  -fx-text-fill: #FFFFFF;
+  -fx-font: 16px Lucida;
+  -fx-font-weight: 600;
+  -fx-border-color: #333333;
+  -fx-border-width: 1px;
+  -fx-border-radius: 3px;
+}
+.button:hover {
+  -fx-effect: dropshadow(three-pass-box, #333333, 10, 0, 0, 0);
+}
+.button:pressed {
+  -fx-background-color: #4c5970;
+}
+.tooltip {
+  -fx-background-color: #6E7B91;
+}
