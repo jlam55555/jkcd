@@ -207,7 +207,7 @@ public class jkcd extends Application {
     return html;
   }
   public static void setImage(int id) {
-    String html = getHtml((id == 0) ? "http://www.xkcd.com/info.0.json" : "http://www.xkcd.com/" + id + "/info.0.json");
+    String html = getHtml((id == 0) ? "https://www.xkcd.com/info.0.json" : "https://www.xkcd.com/" + id + "/info.0.json");
     Pattern infoPattern = Pattern.compile(
       "\"num\": ([0-9]+).+" + 
       "\"link\": \"([^\"]*)\".+" + 
